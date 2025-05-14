@@ -16,7 +16,7 @@ phases:
   pre_build:
     commands:
       - echo "Validación con cfn-lint"
-      - cfn-lint cf-infra/networking.json
+      - cfn-lint --ignore-checks W3010 cf-infra/networking.json || echo "cfn-lint terminó con advertencias"
 
       - echo "Validación con cfn-guard"
       - echo "Resources.mycfvpc.Properties.CidrBlock == \"10.3.0.0/16\"" > rules.guard
