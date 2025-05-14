@@ -1,21 +1,20 @@
 #!/bin/bash
 set -e
 
-VERSION="v3.1.2"
-TARGET="cfn-guard-${VERSION}-x86_64-unknown-linux-gnu"
-URL="https://github.com/aws-cloudformation/cloudformation-guard/releases/download/${VERSION}/${TARGET}.tar.gz"
+echo "🔽 Instalando AWS CloudFormation Guard con el método oficial..."
 
-echo "🔽 Descargando cfn-guard ${VERSION}..."
-curl -sL "$URL" -o guard.tar.gz
+# Ejecutar el script de instalación oficial
+curl --proto '=https' --tlsv1.2 -sSf https://raw.githubusercontent.com/aws-cloudformation/cloudformation-guard/main/install-guard.sh | sh
 
-echo "📦 Extrayendo..."
-mkdir -p ~/.guard/bin
-tar -xzf guard.tar.gz
-mv cfn-guard ~/.guard/bin/
-
-echo "🛠️ Agregando ~/.guard/bin al PATH en ~/.bashrc (si no existe ya)..."
+# Verificar que el directorio de instalación esté en el PATH
 if ! grep -q 'export PATH=$HOME/.guard/bin:$PATH' ~/.bashrc; then
   echo 'export PATH=$HOME/.guard/bin:$PATH' >> ~/.bashrc
+  echo "📌 PATH actualizado en ~/.bashrc"
 fi
 
-echo "✅ Instalación completada. Ejecuta 'source ~/.bashrc' o reinicia la terminal."
+# Aplicar el PATH para la sesión actual
+export PATH=$HOME/.guard/bin:$PATH
+
+# Verificar instalación
+echo "✅ Versión instalada:"
+cfn-guard --version
