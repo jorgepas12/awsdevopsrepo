@@ -1,0 +1,42 @@
+version: 0.2
+
+phases:
+  install:
+    runtime-versions:
+      python: 3.10
+    commands:
+      - echo "Instalando herramientas..."
+      - pip install cfn-lint==1.* awscli
+      - curl -Lo cfn-guard.zip https://github.com/aws-cloudformation/cloudformation-guard/releases/latest/download/cfn-guard-linux.zip
+      - unzip cfn-guard.zip -d cfn-guard
+      - sudo mv cfn-guard/cfn-guard /usr/local/bin/
+      - pip install taskcat
+
+  pre_build:
+    commands:
+      - echo "Validación con cfn-lint"
+      - cfn-lint cf-infra/networking.json
+
+      - echo "Validación con cfn-guard"
+      - echo "Resources.mycfvpc.Properties.CidrBlock == \"10.3.0.0/16\"" > rules.guard
+      - echo "Resources.mysecgroup.Properties.SecurityGroupIngress[*].FromPort == 80" >> rules.guard
+      - cfn-guard validate -d cf-infra/networking.json -r rules.guard
+
+  build:
+    commands:
+      - echo "Ejecutando pruebas con taskcat"
+      - mkdir -p templates
+      - cp cf-infra/networking.json templates/
+      - |
+        echo "project:" > .taskcat.yml
+        echo "  name: vpc-infra-test" >> .taskcat.yml
+        echo "  regions:" >> .taskcat.yml
+        echo "    - us-east-1" >> .taskcat.yml
+        echo "tests:" >> .taskcat.yml
+        echo "  default:" >> .taskcat.yml
+        echo "    template: templates/networking.json" >> .taskcat.yml
+      - taskcat test run
+
+artifacts:
+  files:
+    - "**/*"
