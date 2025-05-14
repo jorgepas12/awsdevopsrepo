@@ -7,11 +7,10 @@ phases:
     commands:
       - echo "Instalando herramientas..."
       - pip install cfn-lint==1.* awscli
-      - echo "Instalando cfn-guard"
-      - curl -sL https://github.com/aws-cloudformation/cloudformation-guard/releases/download/v3.0.0/cfn-guard-linux.tar.gz -o cfn-guard.tar.gz
-      - mkdir cfn-guard && tar -xzf cfn-guard.tar.gz -C cfn-guard
-      - chmod +x cfn-guard/cfn-guard
-      - sudo mv cfn-guard/cfn-guard /usr/local/bin/
+      - echo "Instalando cfn-guard desde el instalador oficial"
+      - curl --proto '=https' --tlsv1.2 -sSf https://raw.githubusercontent.com/aws-cloudformation/cloudformation-guard/main/install-guard.sh | sh
+      - export PATH=$HOME/.guard/bin:$PATH
+      - cfn-guard --version
       - pip install taskcat
 
   pre_build:
@@ -22,6 +21,7 @@ phases:
       - echo "Validación con cfn-guard"
       - echo "Resources.mycfvpc.Properties.CidrBlock == \"10.3.0.0/16\"" > rules.guard
       - echo "Resources.mysecgroup.Properties.SecurityGroupIngress[*].FromPort == 80" >> rules.guard
+      - export PATH=$HOME/.guard/bin:$PATH
       - cfn-guard validate -d cf-infra/networking.json -r rules.guard
 
   build:
