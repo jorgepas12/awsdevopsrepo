@@ -8,7 +8,7 @@ phases:
       - echo "Instalando herramientas..."
       - pip install cfn-lint==1.* awscli
       - echo "Instalando cfn-guard"
-      - curl -sL https://github.com/aws-cloudformation/cloudformation-guard/releases/latest/download/cfn-guard-linux.tar.gz -o cfn-guard.tar.gz
+      - curl -sL https://github.com/aws-cloudformation/cloudformation-guard/releases/download/v3.0.0/cfn-guard-linux.tar.gz -o cfn-guard.tar.gz
       - mkdir cfn-guard && tar -xzf cfn-guard.tar.gz -C cfn-guard
       - chmod +x cfn-guard/cfn-guard
       - sudo mv cfn-guard/cfn-guard /usr/local/bin/
