@@ -1,0 +1,99 @@
+{
+	"AWSTemplateFormatVersion": "2010-09-09",
+	"Description": "App Server CloudFormation",
+	"Metadata": {},
+	"Parameters": {
+		"NetworkStackName": {
+			"Description": "Name of an active CloudFormation stack that contains the networking resources, such as the subnet and security group, that will be used in this stack.",
+			"Type": "String",
+			"MinLength": 1,
+			"MaxLength": 255,
+			"AllowedPattern": "^[a-zA-Z][-a-zA-Z0-9]*$",
+			"Default": "networkingstack"
+		},
+		"InstanceTypeParameter": {
+			"Type": "String",
+			"Default": "t3.micro",
+			"AllowedValues": [
+				"t3.micro",
+				"m1.small",
+				"m1.large"
+			],
+			"Description": "Enter t2.micro, m1.small, or m1.large. Default is t2.micro."
+		}
+	},
+	"Mappings": {
+		"RegionMapAMI": {
+			"us-east-1": {
+				"test": "ami-0cf10cdf9fcd62d37"
+			},
+			"us-east-2": {
+				"test": "ami-03657b56516ab7912"
+			}
+		}
+	},
+	"Conditions": {},
+	"Resources": {
+		"myec2server": {
+			"Type": "AWS::EC2::Instance",
+			"Properties": {
+				"KeyName": "testpair",
+				"ImageId": {
+					"Fn::FindInMap": [
+						"RegionMapAMI",
+						{
+							"Ref": "AWS::Region"
+						},
+						"test"
+					]
+				},
+				"InstanceType": {"Ref": "InstanceTypeParameter"},
+				"Monitoring": "false",
+				"IamInstanceProfile": "RoleEC2-Deploy",
+				"NetworkInterfaces": [
+					{
+						"AssociatePublicIpAddress": "true",
+						"DeviceIndex": "0",
+						"GroupSet": [
+							{
+								"Fn::ImportValue": {
+									"Fn::Sub": "${NetworkStackName}-SecurityGroupID"
+								}
+							}
+						],
+						"SubnetId": {
+							"Fn::ImportValue": {
+								"Fn::Sub": "${NetworkStackName}-SubnetID"
+							}
+						}
+					}
+				],
+				"Tags": [
+					{
+						"Key": "Name",
+						"Value": "ServerAppLinux"
+					}
+				]
+			}
+		}
+	},
+	"Outputs": {
+		"URL": {
+			"Description": "URL of the sample website",
+			"Value": {
+				"Fn::Join": [
+					"",
+					[
+						"http://",
+						{
+							"Fn::GetAtt": [
+								"myec2server",
+								"PublicDnsName"
+							]
+						}
+					]
+				]
+			}
+		}
+	}
+}

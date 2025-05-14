@@ -1,0 +1,200 @@
+{
+	"AWSTemplateFormatVersion": "2010-09-09",
+	"Description": "Networking Template",
+	"Metadata": {},
+	"Parameters": {},
+	"Mappings": {},
+	"Conditions": {},
+	"Resources": {
+		"mycfvpc": {
+			"Type": "AWS::EC2::VPC",
+			"Properties": {
+				"CidrBlock": "10.3.0.0/16",
+				"EnableDnsHostnames": "True",
+				"Tags": [
+					{
+						"Key": "Name",
+						"Value": "VPC-Infra"
+					}
+				]
+			}
+		},
+		"myigw": {
+			"Type": "AWS::EC2::InternetGateway",
+			"Properties": {
+				"Tags": [
+					{
+						"Key": "Name",
+						"Value": "VPC IGF Infra"
+					}
+				]
+			}
+		},
+		"AttachGateway": {
+			"Type": "AWS::EC2::VPCGatewayAttachment",
+			"Properties": {
+				"VpcId": {
+					"Ref": "mycfvpc"
+				},
+				"InternetGatewayId": {
+					"Ref": "myigw"
+				}
+			}
+		},
+		"publicsubnet": {
+			"Type": "AWS::EC2::Subnet",
+			"Properties": {
+				"AvailabilityZone": "us-east-1a",
+				"VpcId": {
+					"Ref": "mycfvpc"
+				},
+				"CidrBlock": "10.3.0.0/24",
+				"Tags": [
+					{
+						"Key": "Name",
+						"Value": "Public Subnet Infra 1"
+					}
+				]
+			}
+		},
+		"publicsubnet1": {
+			"Type": "AWS::EC2::Subnet",
+			"Properties": {
+				"AvailabilityZone": "us-east-1b",
+				"VpcId": {
+					"Ref": "mycfvpc"
+				},
+				"CidrBlock": "10.3.1.0/24",
+				"Tags": [
+					{
+						"Key": "Name",
+						"Value": "Public Subnet Infra 2"
+					}
+				]
+			}
+		},
+		"privatesubnet": {
+			"Type": "AWS::EC2::Subnet",
+			"Properties": {
+				"AvailabilityZone": "us-east-1a",
+				"VpcId": {
+					"Ref": "mycfvpc"
+				},
+				"CidrBlock": "10.3.2.0/24",
+				"Tags": [
+					{
+						"Key": "Name",
+						"Value": "Private Subnet Infra 1"
+					}
+				]
+			}
+		},
+		"publicroutetable": {
+			"Type": "AWS::EC2::RouteTable",
+			"Properties": {
+				"VpcId": {
+					"Ref": "mycfvpc"
+				},
+				"Tags": [
+					{
+						"Key": "Name",
+						"Value": "Public Route Table Infra"
+					}
+				]
+			}
+		},
+		"publicroute": {
+			"Type": "AWS::EC2::Route",
+			"DependsOn": "AttachGateway",
+			"Properties": {
+				"RouteTableId": {
+					"Ref": "publicroutetable"
+				},
+				"DestinationCidrBlock": "0.0.0.0/0",
+				"GatewayId": {
+					"Ref": "myigw"
+				}
+			}
+		},
+		"routeTableAssocName": {
+			"Type": "AWS::EC2::SubnetRouteTableAssociation",
+			"Properties": {
+				"SubnetId": {
+					"Ref": "publicsubnet"
+				},
+				"RouteTableId": {
+					"Ref": "publicroutetable"
+				}
+			}
+		},
+		"routeTableAssocName1": {
+			"Type": "AWS::EC2::SubnetRouteTableAssociation",
+			"Properties": {
+				"SubnetId": {
+					"Ref": "publicsubnet1"
+				},
+				"RouteTableId": {
+					"Ref": "publicroutetable"
+				}
+			}
+		},
+		"mysecgroup": {
+			"Type": "AWS::EC2::SecurityGroup",
+			"Properties": {
+				"GroupDescription": "Enable HTTP INGRESS",
+				"SecurityGroupIngress": [
+					{
+						"IpProtocol": "tcp",
+						"FromPort": "80",
+						"ToPort": "80",
+						"CidrIp": "0.0.0.0/0"
+					}
+				],
+				"VpcId": {
+					"Ref": "mycfvpc"
+				},
+				"Tags": [
+					{
+						"Key": "Name",
+						"Value": "CF-SGroup-Infra"
+					}
+				]
+			}
+		}
+	},
+	"Outputs": {
+		"vpcid": {
+			"Description": "VPC ID",
+			"Value": {
+				"Ref": "mycfvpc"
+			},
+			"Export": {
+				"Name": {
+					"Fn::Sub": "${AWS::StackName}-VPCID"
+				}
+			}
+		},
+		"publicsunbet": {
+			"Description": "The subnet id to use for public webservers",
+			"Value": {
+				"Ref": "publicsubnet1"
+			},
+			"Export": {
+				"Name": {
+					"Fn::Sub": "${AWS::StackName}-SubnetID"
+				}
+			}
+		},
+		"webserversecgroup": {
+			"Description": "Security Group for the Web Servers",
+			"Value": {
+				"Ref": "mysecgroup"
+			},
+			"Export": {
+				"Name": {
+					"Fn::Sub": "${AWS::StackName}-SecurityGroupID"
+				}
+			}
+		}
+	}
+}
