@@ -44,7 +44,7 @@
 		"publicsubnet": {
 			"Type": "AWS::EC2::Subnet",
 			"Properties": {
-				"AvailabilityZone": "us-east-1a",
+				"AvailabilityZone": { "Fn::Select": [ 0, { "Fn::GetAZs": "" } ] },
 				"VpcId": {
 					"Ref": "mycfvpc"
 				},
