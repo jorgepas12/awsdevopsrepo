@@ -12,7 +12,7 @@ phases:
       - chmod +x scripts/install-guard.sh
       - ./scripts/install-guard.sh
 
-      - export PATH=$HOME/.guard/bin:$PATH
+      - export PATH=$PWD/tools/bin:$PATH
       - echo "✅ cfn-guard instalado en:"
       - which cfn-guard
       - cfn-guard --version
@@ -26,7 +26,6 @@ phases:
       - echo "🔐 Validación con cfn-guard"
       - echo 'Resources.mycfvpc.Properties.CidrBlock == "10.3.0.0/16"' > rules.guard
       - echo 'Resources.mysecgroup.Properties.SecurityGroupIngress[*].FromPort == 80' >> rules.guard
-      - export PATH=$HOME/.guard/bin:$PATH
       - cfn-guard validate -d cf-infra/networking.json -r rules.guard || echo "⚠️ cfn-guard terminó con advertencias"
 
   build:

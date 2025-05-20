@@ -1,20 +1,16 @@
 #!/bin/bash
 set -e
 
-echo "🔽 Instalando AWS CloudFormation Guard con el método oficial..."
+echo "🔽 Instalando AWS CloudFormation Guard de forma local..."
 
-# Ejecutar el script de instalación oficial
-curl --proto '=https' --tlsv1.2 -sSf https://raw.githubusercontent.com/aws-cloudformation/cloudformation-guard/main/install-guard.sh | sh
+# Crear carpeta local de instalación
+mkdir -p tools/bin
 
-# Verificar que el directorio de instalación esté en el PATH
-if ! grep -q 'export PATH=$HOME/.guard/bin:$PATH' ~/.bashrc; then
-  echo 'export PATH=$HOME/.guard/bin:$PATH' >> ~/.bashrc
-  echo "📌 PATH actualizado en ~/.bashrc"
-fi
+# Descargar y extraer el binario
+curl -Lo cfn-guard.zip https://github.com/aws-cloudformation/cloudformation-guard/releases/latest/download/cfn-guard-linux-x86_64.zip
+unzip -o cfn-guard.zip -d tools/bin
+chmod +x tools/bin/cfn-guard
 
-# Aplicar el PATH para la sesión actual
-export PATH=$HOME/.guard/bin:$PATH
-
-# Verificar instalación
-echo "✅ Versión instalada:"
-cfn-guard --version
+# Mostrar ubicación y versión
+echo "✅ cfn-guard instalado en $(pwd)/tools/bin"
+./tools/bin/cfn-guard --version
