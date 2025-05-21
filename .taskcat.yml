@@ -1,0 +1,9 @@
+project:
+  name: vpc-infra-test
+  s3_bucket: tcat-vpc-infra-test-szgassdf
+  regions:
+    - us-east-1
+
+tests:
+  default:
+    template: templates/networking.json
