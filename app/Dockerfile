@@ -1,5 +1,5 @@
 # Usar imagen base de nginx
-FROM nginx:alpine
+FROM public.ecr.aws/nginx/nginx:latest
 
 # Copiar archivos estáticos al directorio html de nginx
 COPY index.html /usr/share/nginx/html
