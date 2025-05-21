@@ -4,7 +4,7 @@ phases:
   pre_build:
     commands:
       - echo "Obteniendo credenciales de ECR..."
-      - $(aws ecr get-login-password --region $AWS_REGION | docker login --username AWS --password-stdin $ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com)
+      - aws ecr get-login-password --region $AWS_REGION | docker login --username AWS --password-stdin $ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com
   build:
     commands:
       - echo "Construyendo imagen Docker..."
@@ -12,6 +12,7 @@ phases:
       - docker tag static-web:$IMAGE_TAG $ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/$IMAGE_REPO_NAME:$IMAGE_TAG
   post_build:
     commands:
+      - echo Build completed on `date`
       - echo "Subiendo imagen a ECR..."
       - docker push $ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/$IMAGE_REPO_NAME:$IMAGE_TAG
       - echo "Generando imagedefinitions.json..."
