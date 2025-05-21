@@ -8,7 +8,7 @@ phases:
   build:
     commands:
       - echo "Construyendo imagen Docker..."
-      - docker build -t static-web:$IMAGE_TAG .
+      - docker build -t static-web:$IMAGE_TAG ./app
       - docker tag static-web:$IMAGE_TAG $ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/$IMAGE_REPO_NAME:$IMAGE_TAG
   post_build:
     commands:
@@ -20,4 +20,5 @@ phases:
 
 artifacts:
   files:
-    - imagedefinitions.json
+    - app/imagedefinitions.json
+  base-directory: app
