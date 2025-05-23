@@ -17,5 +17,5 @@ phases:
 artifacts:
   files:
     - appspec.yml
-    - app/scripts/**/*
+    - app/deploy-ec2/scripts/**/*
     - app/**/*
