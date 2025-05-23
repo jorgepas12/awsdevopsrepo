@@ -1,8 +1,5 @@
 version: 0.2
 
-env:
-  variables:
-    DEPLOY_TYPE: "ec2"  # Puedes cambiar a "ecs", "lambda", etc.
 
 phases:
   install:
@@ -12,7 +9,7 @@ phases:
   build:
     commands:
       - echo "Copiando appspec-$DEPLOY_TYPE.yml..."
-      - cp app/deploy-$DEPLOY_TYPE/appspec-$DEPLOY_TYPE.yml appspec.yml
+      - cp app/deploy-ec2/appspec-ec2.yml appspec.yml
 
 artifacts:
   files:
