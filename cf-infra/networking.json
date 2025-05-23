@@ -188,7 +188,7 @@
 		"publicsunbet1": {
 			"Description": "The subnet id to use for public webservers",
 			"Value": {
-				"Ref": "publicsubnet2"
+				"Ref": "publicsubnet1"
 			},
 			"Export": {
 				"Name": {
