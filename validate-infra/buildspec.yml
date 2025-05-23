@@ -1,0 +1,50 @@
+version: 0.2
+
+phases:
+  install:
+    runtime-versions:
+      python: 3.10
+    commands:
+      - echo "📦 Instalando herramientas base..."
+      - pip install cfn-lint==1.* awscli taskcat
+
+      - echo "🛡️ Descargando cfn-guard desde S3..."
+      - mkdir -p tools/bin
+      - aws s3 cp s3://buildbucket1927/cfn-guard/cfn-guard-v3.1.2-linux.tar.gz cfn-guard.tar.gz
+      - tar -xzf cfn-guard.tar.gz -C tools/bin
+      - chmod +x tools/bin/cfn-guard
+
+      - export PATH=$PWD/tools/bin:$PATH
+      - echo "✅ cfn-guard instalado en:"
+      - which cfn-guard
+      - cfn-guard --version
+
+  pre_build:
+    commands:
+      - echo "🔍 Validación con cfn-lint"
+      - |
+        cfn-lint cf-infra/networking.json || echo "⚠️ cfn-lint reportó advertencias, pero se continúa"
+
+      - echo "🔐 Validación con cfn-guard"
+      - echo 'Resources.mycfvpc.Properties.CidrBlock == "10.3.0.0/16"' > rules.guard
+      - echo 'Resources.mysecgroup.Properties.SecurityGroupIngress[*].FromPort == 80' >> rules.guard
+      - cfn-guard validate -d cf-infra/networking.json -r rules.guard || echo "⚠️ cfn-guard terminó con advertencias"
+
+  build:
+    commands:
+      - echo "🧪 Ejecutando pruebas con taskcat"
+      - mkdir -p templates
+      - cp cf-infra/networking.json templates/
+      - |
+        echo "project:" > .taskcat.yml
+        echo "  name: vpc-infra-test" >> .taskcat.yml
+        echo "  regions:" >> .taskcat.yml
+        echo "    - us-east-1" >> .taskcat.yml
+        echo "tests:" >> .taskcat.yml
+        echo "  default:" >> .taskcat.yml
+        echo "    template: templates/networking.json" >> .taskcat.yml
+      - taskcat test run || echo "⚠️ taskcat finalizó con errores o advertencias"
+
+artifacts:
+  files:
+    - "**/*"

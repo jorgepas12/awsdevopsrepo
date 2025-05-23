@@ -6,16 +6,16 @@ files:
 
 hooks:
   BeforeInstall:
-    - location: scripts/cleanup.sh
+    - location: app/scripts/cleanup.sh
       timeout: 60
       runas: ec2-user
 
   AfterInstall:
-    - location: scripts/install.sh
+    - location: app/scripts/install.sh
       timeout: 60
       runas: ec2-user
 
   ApplicationStart:
-    - location: scripts/start.sh
+    - location: app/scripts/start.sh
       timeout: 60
       runas: ec2-user

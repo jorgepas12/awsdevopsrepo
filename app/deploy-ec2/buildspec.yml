@@ -1,0 +1,21 @@
+version: 0.2
+
+env:
+  variables:
+    DEPLOY_TYPE: "ec2"  # Puedes cambiar a "ecs", "lambda", etc.
+
+phases:
+  install:
+    commands:
+      - echo "Iniciando buildspec para appspec dinámico..."
+
+  build:
+    commands:
+      - echo "Copiando appspec-$DEPLOY_TYPE.yml..."
+      - cp app/deploy-$DEPLOY_TYPE/appspec-$DEPLOY_TYPE.yml appspec.yml
+
+artifacts:
+  files:
+    - appspec.yml
+    - app/scripts/**/*
+    - app/**/*
