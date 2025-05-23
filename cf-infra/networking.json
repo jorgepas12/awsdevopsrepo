@@ -185,6 +185,17 @@
 				}
 			}
 		},
+		"publicsunbet1": {
+			"Description": "The subnet id to use for public webservers",
+			"Value": {
+				"Ref": "publicsubnet2"
+			},
+			"Export": {
+				"Name": {
+					"Fn::Sub": "${AWS::StackName}-SubnetID2"
+				}
+			}
+		},
 		"webserversecgroup": {
 			"Description": "Security Group for the Web Servers",
 			"Value": {
