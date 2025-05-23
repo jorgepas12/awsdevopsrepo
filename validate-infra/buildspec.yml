@@ -35,14 +35,6 @@ phases:
       - echo "🧪 Ejecutando pruebas con taskcat"
       - mkdir -p templates
       - cp cf-infra/networking.json templates/
-      - |
-        echo "project:" > .taskcat.yml
-        echo "  name: vpc-infra-test" >> .taskcat.yml
-        echo "  regions:" >> .taskcat.yml
-        echo "    - us-east-1" >> .taskcat.yml
-        echo "tests:" >> .taskcat.yml
-        echo "  default:" >> .taskcat.yml
-        echo "    template: templates/networking.json" >> .taskcat.yml
       - taskcat test run || echo "⚠️ taskcat finalizó con errores o advertencias"
 
 artifacts:
