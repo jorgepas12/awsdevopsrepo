@@ -19,4 +19,3 @@ artifacts:
   files:
     - appspec.yml
     - app/deploy-ec2/scripts/**/*
-    - app/**/*
