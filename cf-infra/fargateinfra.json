@@ -1,0 +1,117 @@
+{
+    "AWSTemplateFormatVersion": "2010-09-09",
+    "Description": "Fargate Service with ALB and ECS Cluster",
+    "Parameters": {
+		"NetworkStackName": {
+			"Description": "Name of an active CloudFormation stack that contains the networking resources, such as the subnet and security group, that will be used in this stack.",
+			"Type": "String",
+			"MinLength": 1,
+			"MaxLength": 255,
+			"AllowedPattern": "^[a-zA-Z][-a-zA-Z0-9]*$",
+			"Default": "networkingstack"
+		}
+    },
+    "Resources": {
+        "ECSCluster": {
+            "Type": "AWS::ECS::Cluster",
+            "Properties": {
+                "ClusterName": "fargate-cluster"
+            }
+        },
+        "ALB": {
+            "Type": "AWS::ElasticLoadBalancingV2::LoadBalancer",
+            "Properties": {
+                "Name": "fargate-alb",
+                "Scheme": "internet-facing",
+                "Subnets": [
+                    {"Fn::ImportValue": "networking-stack-SubnetID"},
+                    {"Fn::ImportValue": "networking-stack-SubnetID2"}
+                ],
+                "SecurityGroups": [
+                    {"Fn::ImportValue": "networking-stack-SecurityGroupID"}
+                ]
+            }
+        },
+        "ALBListener": {
+            "Type": "AWS::ElasticLoadBalancingV2::Listener",
+            "Properties": {
+                "DefaultActions": [
+                    {
+                        "Type": "fixed-response",
+                        "FixedResponseConfig": {
+                            "StatusCode": "200",
+                            "ContentType": "text/plain",
+                            "MessageBody": "Default response from ALB"
+                        }
+                    }
+                ],
+                "LoadBalancerArn": {"Ref": "ALB"},
+                "Port": 80,
+                "Protocol": "HTTP"
+            }
+        },
+        "TargetGroup": {
+            "Type": "AWS::ElasticLoadBalancingV2::TargetGroup",
+            "Properties": {
+                "Name": "fargate-tg",
+                "Port": 80,
+                "Protocol": "HTTP",
+                "VpcId": {"Fn::ImportValue": "networking-stack-VPCID"},
+                "TargetType": "ip",
+                "HealthCheckPath": "/"
+            }
+        },
+        "FargateServiceRole": {
+            "Type": "AWS::IAM::Role",
+            "Properties": {
+                "AssumeRolePolicyDocument": {
+                    "Version": "2012-10-17",
+                    "Statement": [
+                        {
+                            "Effect": "Allow",
+                            "Principal": {
+                                "Service": "ecs.amazonaws.com"
+                            },
+                            "Action": "sts:AssumeRole"
+                        }
+                    ]
+                },
+                "ManagedPolicyArns": [
+                    "arn:aws:iam::aws:policy/service-role/AmazonECSTaskExecutionRolePolicy"
+                ],
+                "RoleName": "ecsTaskExecutionRole"
+            }
+        }
+    },
+    "Outputs": {
+        "ClusterName": {
+            "Description": "Name of the ECS Cluster",
+            "Value": {"Ref": "ECSCluster"},
+            "Export": {
+                "Name": {
+                    "Fn::Sub": "${AWS::StackName}-ClusterName"
+                }
+            }
+        },
+        "TargetGroupArn": {
+            "Description": "ARN of the Target Group",
+            "Value": {"Ref": "TargetGroup"},
+            "Export": {
+                "Name": {
+                    "Fn::Sub": "${AWS::StackName}-TargetGroupArn"
+                }
+            }
+        },
+        "LoadBalancerDNS": {
+            "Description": "ALB DNS Name",
+            "Value": {
+                "Fn::GetAtt": ["ALB", "DNSName"]
+            },
+            "Export": {
+                "Name": {
+                    "Fn::Sub": "${AWS::StackName}-LoadBalancerDNS"
+                }
+            }
+        }
+    }
+}
