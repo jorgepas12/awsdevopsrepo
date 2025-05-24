@@ -1,17 +1,17 @@
 version: 0.2
 
-
 phases:
 
   build:
     commands:
-      - echo "Copiando appspec-ec2.yml..."
-      - mkdir -p build-output
-      - cp app/deploy-ec2/appspec-ec2.yml build-output/appspec.yml
-      - cp -r app/deploy-ec2/scripts build-output/
+      - echo "Copiando appspec-ec2.yml como appspec.yml..."
+      - cp app/deploy-ec2/appspec-ec2.yml appspec.yml
+      - echo "Contenido de appspec.yml:"
+      - cat appspec.yml
+      - echo "Archivos presentes:"
+      - find .
 
 artifacts:
-  base-directory: build-output
   files:
     - appspec.yml
-    - scripts/**/*
+    - app/deploy-ec2/scripts/**/*
