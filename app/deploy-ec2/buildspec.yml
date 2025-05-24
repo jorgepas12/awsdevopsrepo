@@ -2,21 +2,16 @@ version: 0.2
 
 
 phases:
-  install:
-    commands:
-      - echo "Iniciando buildspec para appspec dinámico..."
 
   build:
     commands:
-      - echo "Copiando appspec-$DEPLOY_TYPE.yml..."
-      - cp app/deploy-ec2/appspec-ec2.yml appspec.yml
-      - echo "Contenido de appspec.yml:"
-      - cat appspec.yml
-      - echo "Archivos presentes:"
-      - find .
+      - echo "Copiando appspec-ec2.yml..."
+      - mkdir -p build-output
+      - cp app/deploy-ec2/appspec-ec2.yml build-output/appspec.yml
+      - cp -r app/deploy-ec2/scripts build-output/
 
 artifacts:
-  base-directory: .
+  base-directory: build-output
   files:
     - appspec.yml
-    - app/deploy-ec2/scripts/**/*
+    - scripts/**/*
