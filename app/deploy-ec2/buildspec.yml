@@ -16,6 +16,7 @@ phases:
       - find .
 
 artifacts:
+  base-directory: .
   files:
     - appspec.yml
     - app/deploy-ec2/scripts/**/*
