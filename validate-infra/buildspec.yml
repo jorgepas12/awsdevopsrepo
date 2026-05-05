@@ -6,8 +6,9 @@ phases:
       python: 3.10
     commands:
       - echo "📦 Instalando herramientas base..."
-      - pip install cfn-lint==1.* awscli taskcat
-      - pip install taskcat --no-cache-dir
+      - pip install cfn-lint==1.* awscli --quiet
+      # Instalamos taskcat solo al final y de forma aislada
+      - pip install taskcat --no-cache-dir --quiet
 
       - echo "🛡️ Descargando cfn-guard desde S3..."
       - mkdir -p tools/bin
@@ -15,7 +16,8 @@ phases:
       - tar -xzf cfn-guard.tar.gz -C tools/bin
       - chmod +x tools/bin/cfn-guard
 
-      - export PATH=$PWD/tools/bin:$PATH
+      - export PATH=$PATH:$PWD/tools/bin
+      - echo "✅ Entorno listo"
       - echo "✅ cfn-guard instalado en:"
       - which cfn-guard
       - cfn-guard --version
@@ -36,6 +38,14 @@ phases:
       - echo "🧪 Ejecutando pruebas con taskcat"
       - mkdir -p templates
       - cp cf-infra/networking.json templates/
+      - |
+        echo "project:" > .taskcat.yml
+        echo "  name: vpc-infra-test" >> .taskcat.yml
+        echo "  regions:" >> .taskcat.yml
+        echo "    - us-east-1" >> .taskcat.yml
+        echo "tests:" >> .taskcat.yml
+        echo "  default:" >> .taskcat.yml
+        echo "    template: templates/networking.json" >> .taskcat.yml
       - taskcat test run || echo "⚠️ taskcat finalizó con errores o advertencias"
 
 artifacts:
