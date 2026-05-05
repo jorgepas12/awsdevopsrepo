@@ -6,6 +6,7 @@ phases:
       python: 3.10
     commands:
       - echo "📦 Instalando herramientas base..."
+      - pip install --upgrade pip
       - pip install cfn-lint==1.* awscli --quiet
       # Instalamos taskcat solo al final y de forma aislada
       - pip install taskcat --no-cache-dir --quiet
