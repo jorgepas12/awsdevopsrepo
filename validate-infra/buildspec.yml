@@ -7,6 +7,7 @@ phases:
     commands:
       - echo "📦 Instalando herramientas base..."
       - pip install cfn-lint==1.* awscli taskcat
+      - pip install taskcat --no-cache-dir
 
       - echo "🛡️ Descargando cfn-guard desde S3..."
       - mkdir -p tools/bin
